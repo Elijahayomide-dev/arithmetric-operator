@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>Shape &amp; BMI Calculator</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #17243b;
+            --muted: #718096;
+            --line: #e7ebf2;
+            --accent: #6258e8;
+            --accent-dark: #4c43ca;
+            --surface: #ffffff;
+            --page: #f5f7fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(circle at 8% 2%, rgba(114, 102, 255, 0.09), transparent 25rem),
+                var(--page);
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 52px 0 64px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            color: var(--accent);
+            font-size: 0.76rem;
+            font-weight: 750;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3rem);
+            letter-spacing: -0.055em;
+            line-height: 1.08;
+        }
+
+        .intro {
+            max-width: 530px;
+            margin: 12px 0 0;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+
+        .count-badge {
+            flex: 0 0 auto;
+            margin-bottom: 4px;
+            padding: 10px 14px;
+            border: 1px solid #e6e5ff;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--accent-dark);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .calculator-card {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            padding: 22px;
+            border: 1px solid rgba(226, 231, 240, 0.9);
+            border-radius: 18px;
+            background: var(--surface);
+            box-shadow: 0 8px 24px rgba(34, 45, 72, 0.045);
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 32px rgba(34, 45, 72, 0.09);
+        }
+
+        .card-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .card-icon {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 13px;
+            background: #f0efff;
+            color: var(--accent);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .calculator-card:nth-child(2) .card-icon,
+        .calculator-card:nth-child(5) .card-icon {
+            background: #e8f8f2;
+            color: #1b9a72;
+        }
+
+        .calculator-card:nth-child(3) .card-icon,
+        .calculator-card:nth-child(6) .card-icon {
+            background: #fff3e8;
+            color: #df8c37;
+        }
+
+        .calculator-card:nth-child(7) .card-icon {
+            background: #eaf3ff;
+            color: #4784d4;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 720;
+            letter-spacing: -0.02em;
+        }
+
+        .formula {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .fields {
+            display: grid;
+            gap: 12px;
+        }
+
+        .fields.two-column {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .field {
+            display: grid;
+            min-width: 0;
+            gap: 6px;
+        }
+
+        label {
+            color: #536176;
+            font-size: 0.77rem;
+            font-weight: 650;
+        }
+
+        input {
+            width: 100%;
+            min-height: 44px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            outline: none;
+            background: #fbfcfe;
+            color: var(--ink);
+            font: inherit;
+            font-size: 0.88rem;
+            transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+        }
+
+        input::placeholder {
+            color: #a4adbc;
+        }
+
+        input:focus {
+            border-color: #9c96f4;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(98, 88, 232, 0.12);
+        }
+
+        button {
+            width: 100%;
+            min-height: 44px;
+            margin-top: 16px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            transition: background 150ms ease, transform 150ms ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            background: var(--accent-dark);
+        }
+
+        button:focus-visible {
+            outline: 3px solid rgba(98, 88, 232, 0.3);
+            outline-offset: 3px;
+        }
+
+        .result {
+            min-height: 22px;
+            margin-top: 12px;
+            color: var(--accent-dark);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .result p {
+            margin: 0;
+        }
+
+        .footer-note {
+            margin: 22px 0 0;
+            color: #8792a3;
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        @media (max-width: 850px) {
+            .calculator-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 580px) {
+            .page-shell {
+                width: min(100% - 28px, 430px);
+                padding: 34px 0 42px;
+            }
+
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+                margin-bottom: 22px;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .calculator-card {
+                padding: 19px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Quick calculations</p>
+                <h1>Shape &amp; BMI Calculator</h1>
+                <p class="intro">Enter your measurements and find the area of common shapes, or calculate your body mass index.</p>
+            </div>
+            <span class="count-badge">7 handy tools</span>
+        </header>
+
+        <section class="calculator-grid" aria-label="Calculators">
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9651;</span>
+                    <div><h2>Triangle</h2><p class="formula">Area = base &times; height &divide; 2</p></div>
+                </div>
+                <div class="fields two-column">
+                    <div class="field"><label for="base">Base</label><input type="number" id="base" placeholder="Enter base"></div>
+                    <div class="field"><label for="height">Height</label><input type="number" id="height" placeholder="Enter height"></div>
+                </div>
+                <button type="button" onclick="calculate()">Calculate area</button>
+                <div class="result" id="display" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9633;</span>
+                    <div><h2>Square</h2><p class="formula">Area = side &times; side</p></div>
+                </div>
+                <div class="fields">
+                    <div class="field"><label for="side">Side length</label><input type="number" id="side" placeholder="Enter side length"></div>
+                </div>
+                <button type="button" onclick="calculate()">Calculate area</button>
+                <div class="result" id="displayOne" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9675;</span>
+                    <div><h2>Circle</h2><p class="formula">Area = 3.142 &times; radius squared</p></div>
+                </div>
+                <div class="fields">
+                    <div class="field"><label for="radius">Radius</label><input type="number" id="radius" placeholder="Enter radius"></div>
+                </div>
+                <button type="button" onclick="solve1()">Calculate area</button>
+                <div class="result" id="displayTwo" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9671;</span>
+                    <div><h2>Quadrilateral</h2><p class="formula">Area = diagonal &times; (h1 + h2) &divide; 2</p></div>
+                </div>
+                <div class="fields">
+                    <div class="field"><label for="diagonal">Diagonal</label><input type="number" id="diagonal" placeholder="Enter diagonal"></div>
+                    <div class="fields two-column">
+                        <div class="field"><label for="height1">First height</label><input type="number" id="height1" placeholder="First height"></div>
+                        <div class="field"><label for="height2">Second height</label><input type="number" id="height2" placeholder="Second height"></div>
+                    </div>
+                </div>
+                <button type="button" onclick="solve2()">Calculate area</button>
+                <div class="result" id="displayThree" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9670;</span>
+                    <div><h2>Rhombus</h2><p class="formula">Area = diagonal 1 &times; diagonal 2 &divide; 2</p></div>
+                </div>
+                <div class="fields two-column">
+                    <div class="field"><label for="d1">First diagonal</label><input type="number" id="d1" placeholder="First diagonal"></div>
+                    <div class="field"><label for="d2">Second diagonal</label><input type="number" id="d2" placeholder="Second diagonal"></div>
+                </div>
+                <button type="button" onclick="rhombus()">Calculate area</button>
+                <div class="result" id="displayFour" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9645;</span>
+                    <div><h2>Trapezium</h2><p class="formula">Area = (side 1 + side 2) &times; height &divide; 2</p></div>
+                </div>
+                <div class="fields">
+                    <div class="fields two-column">
+                        <div class="field"><label for="a">First parallel side</label><input type="number" id="a" placeholder="First side"></div>
+                        <div class="field"><label for="b">Second parallel side</label><input type="number" id="b" placeholder="Second side"></div>
+                    </div>
+                    <div class="field"><label for="trapHeight">Height</label><input type="number" id="trapHeight" placeholder="Enter height"></div>
+                </div>
+                <button type="button" onclick="trapezium()">Calculate area</button>
+                <div class="result" id="displayFive" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">&#9643;</span>
+                    <div><h2>Parallelogram</h2><p class="formula">Area = base &times; height</p></div>
+                </div>
+                <div class="fields two-column">
+                    <div class="field"><label for="pbase">Base</label><input type="number" id="pbase" placeholder="Enter base"></div>
+                    <div class="field"><label for="pheight">Height</label><input type="number" id="pheight" placeholder="Enter height"></div>
+                </div>
+                <button type="button" onclick="parallelogram()">Calculate area</button>
+                <div class="result" id="displaySix" aria-live="polite"></div>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">BMI</span>
+                    <div><h2>BMI calculator</h2><p class="formula">Enter weight and height to calculate BMI</p></div>
+                </div>
+                <div class="fields two-column">
+                    <div class="field"><label for="bmiweight">Weight (kg)</label><input type="number" id="bmiweight" placeholder="e.g. 70"></div>
+                    <div class="field"><label for="bmiheight">Height (m)</label><input type="number" id="bmiheight" placeholder="e.g. 1.75"></div>
+                </div>
+                <button type="button" onclick="bmi()">Calculate BMI</button>
+                <div class="result" id="displaySeven" aria-live="polite"></div>
+            </article>
+        </section>
+        <p class="footer-note">Use the same unit for each measurement in a calculation.</p>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
