@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>Gradebook — Student Grading System</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #17233c;
+            --muted: #748099;
+            --line: #e7ebf2;
+            --blue: #4667e8;
+            --blue-dark: #3453ce;
+            --surface: #ffffff;
+            --background: #f5f7fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 86% 0%, rgba(94, 123, 241, 0.11), transparent 34rem),
+                var(--background);
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 34px 0 42px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 76px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: var(--ink);
+            font-size: 15px;
+            font-weight: 750;
+            letter-spacing: -0.035em;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--blue);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 800;
+            box-shadow: 0 6px 15px rgba(70, 103, 232, 0.22);
+        }
+
+        .topbar-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 550;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #35b987;
+            box-shadow: 0 0 0 4px rgba(53, 185, 135, 0.12);
+        }
+
+        .intro {
+            max-width: 680px;
+            margin: 0 auto 43px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(36px, 5vw, 52px);
+            font-weight: 760;
+            letter-spacing: -0.065em;
+            line-height: 1.08;
+        }
+
+        .intro p {
+            max-width: 480px;
+            margin: 16px auto 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .calculator-card {
+            display: flex;
+            min-height: 340px;
+            flex-direction: column;
+            padding: 25px;
+            border: 1px solid rgba(224, 230, 240, 0.9);
+            border-radius: 18px;
+            background: var(--surface);
+            box-shadow: 0 12px 35px rgba(34, 51, 84, 0.055);
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 42px rgba(34, 51, 84, 0.09);
+        }
+
+        .card-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .card-icon {
+            display: grid;
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            place-items: center;
+            border-radius: 14px;
+            background: #eef1ff;
+            color: var(--blue);
+            font-size: 19px;
+            font-weight: 750;
+        }
+
+        .calculator-card:nth-child(2) .card-icon {
+            background: #eaf8f3;
+            color: #209a70;
+        }
+
+        .calculator-card:nth-child(3) .card-icon {
+            background: #fff3e9;
+            color: #dd8134;
+        }
+
+        .card-heading h2 {
+            margin: 2px 0 5px;
+            font-size: 17px;
+            font-weight: 730;
+            letter-spacing: -0.035em;
+        }
+
+        .card-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 9px;
+            color: #39445b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            height: 49px;
+            padding: 0 54px 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            outline: none;
+            background: #fbfcfe;
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+            transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+
+        input::placeholder {
+            color: #a4adbd;
+        }
+
+        input:focus {
+            border-color: var(--blue);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(70, 103, 232, 0.12);
+        }
+
+        input::-webkit-inner-spin-button,
+        input::-webkit-outer-spin-button {
+            margin: 0;
+            appearance: none;
+        }
+
+        input[type="number"] {
+            appearance: textfield;
+        }
+
+        .input-unit {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            color: #8a94a8;
+            font-size: 12px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .range-note {
+            margin: 9px 0 19px;
+            color: #8a94a8;
+            font-size: 11px;
+        }
+
+        .check-button {
+            display: flex;
+            width: 100%;
+            min-height: 46px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: auto;
+            border: 0;
+            border-radius: 10px;
+            background: var(--blue);
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+        }
+
+        .check-button:hover {
+            background: var(--blue-dark);
+            box-shadow: 0 6px 14px rgba(70, 103, 232, 0.2);
+        }
+
+        .check-button:active {
+            transform: translateY(1px);
+        }
+
+        .check-button:focus-visible {
+            outline: 3px solid rgba(70, 103, 232, 0.28);
+            outline-offset: 3px;
+        }
+
+        .result {
+            margin: 13px 0 0;
+            color: var(--blue-dark);
+            font-size: 13px;
+            font-weight: 750;
+            text-align: center;
+        }
+
+        .result:empty {
+            display: none;
+        }
+
+        .page-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 37px;
+            color: #929bad;
+            font-size: 11px;
+        }
+
+        .footer-divider {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #b7bfcc;
+        }
+
+        @media (max-width: 850px) {
+            .topbar {
+                margin-bottom: 58px;
+            }
+
+            .calculator-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-shell {
+                width: min(100% - 32px, 420px);
+                padding-top: 20px;
+            }
+
+            .topbar {
+                margin-bottom: 54px;
+            }
+
+            .topbar-note {
+                font-size: 11px;
+            }
+
+            .intro {
+                margin-bottom: 30px;
+            }
+
+            .intro p {
+                font-size: 14px;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .calculator-card {
+                min-height: 0;
+                padding: 22px;
+            }
+
+            .page-footer {
+                margin-top: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="#" aria-label="Gradebook home">
+                <span class="brand-mark" aria-hidden="true">g</span>
+                <span>gradebook</span>
+            </a>
+            <span class="topbar-note"><span class="status-dot" aria-hidden="true"></span>Simple, instant grade checks</span>
+        </header>
+
+        <section class="intro" aria-labelledby="page-title">
+            <span class="eyebrow">Academic tools</span>
+            <h1 id="page-title">Know where you stand.</h1>
+            <p>Choose your grading system, enter your result, and get your grade in a moment.</p>
+        </section>
+
+        <section class="calculator-grid" aria-label="Grade calculators">
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">U</span>
+                    <div>
+                        <h2>University</h2>
+                        <p>Check your cumulative GPA</p>
+                    </div>
+                </div>
+                <label class="field-label" for="university">Your CGPA</label>
+                <div class="input-wrap">
+                    <input type="number" id="university" min="0" max="5" step="0.01" placeholder="e.g. 4.25" inputmode="decimal">
+                    <span class="input-unit">/ 5.00</span>
+                </div>
+                <p class="range-note">Enter a value from 0.00 to 5.00</p>
+                <button class="check-button" type="button" onclick="universityGrade()">Check my grade <span aria-hidden="true">→</span></button>
+                <p class="result" id="universityResult" aria-live="polite"></p>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">P</span>
+                    <div>
+                        <h2>Polytechnic</h2>
+                        <p>Find your score classification</p>
+                    </div>
+                </div>
+                <label class="field-label" for="polytechnic">Your score</label>
+                <div class="input-wrap">
+                    <input type="number" id="polytechnic" min="0" max="100" step="1" placeholder="e.g. 76" inputmode="numeric">
+                    <span class="input-unit">/ 100</span>
+                </div>
+                <p class="range-note">Enter a score from 0 to 100</p>
+                <button class="check-button" type="button" onclick="polytechnicGrade()">Check my grade <span aria-hidden="true">→</span></button>
+                <p class="result" id="polytechnicResult" aria-live="polite"></p>
+            </article>
+
+            <article class="calculator-card">
+                <div class="card-heading">
+                    <span class="card-icon" aria-hidden="true">S</span>
+                    <div>
+                        <h2>Secondary school</h2>
+                        <p>Find your score classification</p>
+                    </div>
+                </div>
+                <label class="field-label" for="secondary">Your score</label>
+                <div class="input-wrap">
+                    <input type="number" id="secondary" min="0" max="100" step="1" placeholder="e.g. 82" inputmode="numeric">
+                    <span class="input-unit">/ 100</span>
+                </div>
+                <p class="range-note">Enter a score from 0 to 100</p>
+                <button class="check-button" type="button" onclick="secondaryGrade()">Check my grade <span aria-hidden="true">→</span></button>
+                <p class="result" id="secondaryResult" aria-live="polite"></p>
+            </article>
+        </section>
+
+        <footer class="page-footer">
+            <span>Gradebook</span>
+            <span class="footer-divider" aria-hidden="true"></span>
+            <span>Made for students</span>
+        </footer>
+    </main>
+
+    <script src="university.js"></script>
+    <script src="polytechnic.js"></script>
+    <script src="secondary.js"></script>
+</body>
+</html>
